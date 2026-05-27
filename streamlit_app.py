@@ -77,10 +77,13 @@ st.markdown(
     f"""
     ## θ = {theta_deg}° = {theta_rad:.3f} 라디안
 
-    - `sin(θ) = {sin_val:.4f}`
-    - `cos(θ) = {cos_val:.4f}`
-    - `tan(θ) = {('undefined' if tan_val is None else f'{tan_val:.4f}')}`
-    """
+    <div style='font-size:24px; line-height:1.6;'>
+    - <strong>sin(θ) = {sin_val:.4f}</strong><br>
+    - <strong>cos(θ) = {cos_val:.4f}</strong><br>
+    - <strong>tan(θ) = {('undefined' if tan_val is None else f'{tan_val:.4f}')}</strong>
+    </div>
+    """,
+    unsafe_allow_html=True,
 )
 
 angles = list(range(0, 361, 5))
@@ -104,48 +107,60 @@ selected_df = pd.DataFrame({
 })
 
 st.markdown("### 삼각함수 그래프")
+show_sin = st.checkbox("sin(θ) 그래프 보이기", value=True)
+show_cos = st.checkbox("cos(θ) 그래프 보이기", value=True)
+show_tan = st.checkbox("tan(θ) 그래프 보이기", value=True)
 col1, col2, col3 = st.columns(3)
 with col1:
     st.subheader("sin(θ)")
-    sin_chart = alt.Chart(sin_df).mark_line(color="#1f77b4").encode(
+    sin_chart = alt.Chart(sin_df).mark_circle(color="#1f77b4", size=50).encode(
         x=alt.X("θ:Q", title="θ (degrees)", axis=alt.Axis(domainColor="black", labelColor="black", titleColor="black", tickColor="black", gridColor="#e6e6e6")),
         y=alt.Y("값:Q", title="sin(θ)", axis=alt.Axis(labelColor="#1f77b4", titleColor="#1f77b4", domainColor="#1f77b4", tickColor="#1f77b4", gridColor="#d3d3d3")),
         tooltip=[alt.Tooltip("θ:Q", title="θ"), alt.Tooltip("값:Q", title="sin(θ)")],
     )
-    sin_point = alt.Chart(selected_df[selected_df["함수"] == "sin(θ)"]).mark_circle(color="#d62728", size=100).encode(
+    sin_point = alt.Chart(selected_df[selected_df["함수"] == "sin(θ)"]).mark_circle(color="#d62728", size=150).encode(
         x="θ:Q",
         y="값:Q",
         tooltip=[alt.Tooltip("θ:Q", title="θ"), alt.Tooltip("값:Q", title="sin(θ)")],
     )
     sin_zero_line = alt.Chart(pd.DataFrame({"y": [0]})).mark_rule(color="black", strokeWidth=2).encode(y="y:Q")
-    st.altair_chart((sin_chart + sin_zero_line + sin_point).interactive(), use_container_width=True)
+    sin_layer = sin_zero_line + sin_point
+    if show_sin:
+        sin_layer = sin_layer + sin_chart
+    st.altair_chart(sin_layer.properties(width=320, height=320).interactive(), use_container_width=True)
 with col2:
     st.subheader("cos(θ)")
-    cos_chart = alt.Chart(cos_df).mark_line(color="#2ca02c").encode(
+    cos_chart = alt.Chart(cos_df).mark_circle(color="#2ca02c", size=50).encode(
         x=alt.X("θ:Q", title="θ (degrees)", axis=alt.Axis(domainColor="black", labelColor="black", titleColor="black", tickColor="black", gridColor="#e6e6e6")),
         y=alt.Y("값:Q", title="cos(θ)", axis=alt.Axis(labelColor="#2ca02c", titleColor="#2ca02c", domainColor="#2ca02c", tickColor="#2ca02c", gridColor="#d3d3d3")),
         tooltip=[alt.Tooltip("θ:Q", title="θ"), alt.Tooltip("값:Q", title="cos(θ)")],
     )
-    cos_point = alt.Chart(selected_df[selected_df["함수"] == "cos(θ)"]).mark_circle(color="#d62728", size=100).encode(
+    cos_point = alt.Chart(selected_df[selected_df["함수"] == "cos(θ)"]).mark_circle(color="#d62728", size=150).encode(
         x="θ:Q",
         y="값:Q",
         tooltip=[alt.Tooltip("θ:Q", title="θ"), alt.Tooltip("값:Q", title="cos(θ)")],
     )
     cos_zero_line = alt.Chart(pd.DataFrame({"y": [0]})).mark_rule(color="black", strokeWidth=2).encode(y="y:Q")
-    st.altair_chart((cos_chart + cos_zero_line + cos_point).interactive(), use_container_width=True)
+    cos_layer = cos_zero_line + cos_point
+    if show_cos:
+        cos_layer = cos_layer + cos_chart
+    st.altair_chart(cos_layer.properties(width=320, height=320).interactive(), use_container_width=True)
 with col3:
     st.subheader("tan(θ)")
-    tan_chart = alt.Chart(tan_df).mark_line(color="#9467bd").encode(
+    tan_chart = alt.Chart(tan_df).mark_circle(color="#9467bd", size=50).encode(
         x=alt.X("θ:Q", title="θ (degrees)", axis=alt.Axis(domainColor="black", labelColor="black", titleColor="black", tickColor="black", gridColor="#e6e6e6")),
         y=alt.Y("값:Q", title="tan(θ)", scale=alt.Scale(domain=[-10, 10]), axis=alt.Axis(labelColor="#9467bd", titleColor="#9467bd", domainColor="#9467bd", tickColor="#9467bd", gridColor="#d3d3d3")),
         tooltip=[alt.Tooltip("θ:Q", title="θ"), alt.Tooltip("값:Q", title="tan(θ)")],
     )
     asymptotes = pd.DataFrame({"θ": [90, 270]})
     asymptote_lines = alt.Chart(asymptotes).mark_rule(color="#d62728", strokeDash=[4,4], size=2).encode(x="θ:Q")
-    tan_point = alt.Chart(selected_df[selected_df["함수"] == "tan(θ)"]).mark_circle(color="#d62728", size=100).encode(
+    tan_point = alt.Chart(selected_df[selected_df["함수"] == "tan(θ)"]).mark_circle(color="#d62728", size=150).encode(
         x="θ:Q",
         y="값:Q",
         tooltip=[alt.Tooltip("θ:Q", title="θ"), alt.Tooltip("값:Q", title="tan(θ)")],
     )
     tan_zero_line = alt.Chart(pd.DataFrame({"y": [0]})).mark_rule(color="black", strokeWidth=2).encode(y="y:Q")
-    st.altair_chart((tan_chart + asymptote_lines + tan_zero_line + tan_point).interactive(), use_container_width=True)
+    tan_layer = tan_zero_line + tan_point
+    if show_tan:
+        tan_layer = tan_layer + tan_chart + asymptote_lines
+    st.altair_chart(tan_layer.properties(width=320, height=320).interactive(), use_container_width=True)
